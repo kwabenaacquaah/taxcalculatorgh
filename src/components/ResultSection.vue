@@ -1,6 +1,9 @@
 <script setup>
-import { ref } from "vue";
-defineProps({ taxResult: { type: Object, required: true } });
+import { computed, ref } from "vue";
+import { Decimal } from "decimal.js";
+const props = defineProps({ taxResult: { type: Object, required: true } });
+const deductions = computed(() => new Decimal(props.taxResult.incomeTax).plus(props.taxResult.ssnit).toFixed(2));
+const gross = computed(() => new Decimal(props.taxResult.netIncome).plus(deductions.value).toFixed(2));
 const showDetails = ref(false);
 const formatter = new Intl.NumberFormat("en-GH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const money = (value) => formatter.format(Number(value));
@@ -8,12 +11,13 @@ const money = (value) => formatter.format(Number(value));
 <template>
   <section class="results-card" aria-labelledby="result-title">
     <div class="take-home" aria-live="polite" aria-atomic="true">
-      <p class="eyebrow">YOUR ESTIMATED TAKE-HOME</p>
+      <p class="eyebrow">Employee take-home pay</p>
       <h2 id="result-title"><span>GH₵</span> {{ money(taxResult.netIncome) }}</h2>
-      <p>per month, after PAYE and employee pension</p>
+      <p>Monthly estimate after PAYE and employee pension</p>
+      <dl class="summary-totals"><div><dt>Gross earnings</dt><dd>GH₵ {{ money(gross) }}</dd></div><div><dt>Total deductions</dt><dd>GH₵ {{ money(deductions) }}</dd></div></dl>
     </div>
     <div class="deductions">
-      <h3>Your monthly deductions</h3>
+      <div class="deduction-heading"><h3>Calculation summary</h3><span class="estimate-label">Monthly estimate</span></div>
       <dl><div><dt>PAYE income tax</dt><dd>GH₵ {{ money(taxResult.incomeTax) }}</dd></div><div><dt>Employee pension <span>(SSNIT)</span></dt><dd>GH₵ {{ money(taxResult.ssnit) }}</dd></div></dl>
       <button type="button" class="breakdown-button" :aria-expanded="showDetails" aria-controls="tax-breakdown" @click="showDetails = !showDetails">{{ showDetails ? "Hide tax breakdown" : "Explore tax breakdown" }} <span aria-hidden="true">{{ showDetails ? "−" : "+" }}</span></button>
       <div id="tax-breakdown" v-show="showDetails" class="table-scroll">
