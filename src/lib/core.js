@@ -1,20 +1,14 @@
 import { Decimal } from "decimal.js";
-import { monthlyTaxRates, SSNIT_RATE } from "./rates";
+import { monthlyTaxRates, SSNIT_RATE, SSNIT_MAX_INSURABLE_EARNINGS } from "./rates";
 
 function calculate(grossInput, allowancesInput, taxReliefInput) {
-  if (grossInput === "") {
-    grossInput = 0;
+  const inputs = [grossInput, allowancesInput, taxReliefInput].map(normalizeAmount);
+  const labels = ["Monthly basic income", "Monthly allowances", "Monthly tax relief"];
+  const invalidIndex = inputs.findIndex((value) => !isValidNumber(value));
+  if (invalidIndex !== -1) {
+    return { errorMessage: `Please enter a valid non-negative amount for ${labels[invalidIndex]}.` };
   }
-  if (allowancesInput === "") {
-    allowancesInput = 0;
-  }
-  if (taxReliefInput === "") {
-    taxReliefInput = 0;
-  }
-
-  if (!isValidNumber(grossInput) || !isValidNumber(allowancesInput) || !isValidNumber(taxReliefInput)) {
-    return { errorMessage: "Please input valid amounts" };
-  }
+  [grossInput, allowancesInput, taxReliefInput] = inputs;
 
   return computeTaxes({
     grossIncome: new Decimal(grossInput),
@@ -27,7 +21,7 @@ function calculate(grossInput, allowancesInput, taxReliefInput) {
 function computeTaxes({ grossIncome, allowances, taxRelief, taxRates }) {
 
   let totalTax = new Decimal(0);
-  const ssnitContribution = new Decimal(grossIncome).times(SSNIT_RATE).dividedBy(100).toDecimalPlaces(2);
+  const ssnitContribution = Decimal.min(grossIncome, SSNIT_MAX_INSURABLE_EARNINGS).times(SSNIT_RATE).dividedBy(100).toDecimalPlaces(2);
 
   const totalTaxRelief = ssnitContribution.plus(taxRelief);
 
@@ -55,7 +49,7 @@ function computeTaxes({ grossIncome, allowances, taxRelief, taxRates }) {
       computationBreakdown[i] = {
         taxRate,
         taxAmount: trancheTax.toFixed(2),
-        amountTaxed: actualTaxableAmount.toFixed(0)
+        amountTaxed: actualTaxableAmount.toFixed(2)
       };
 
       taxableRemaining = taxableRemaining.minus(actualTaxableAmount);
@@ -72,6 +66,14 @@ function computeTaxes({ grossIncome, allowances, taxRelief, taxRates }) {
     netIncome: netIncome.toFixed(2),
     computationBreakdown
   };
+}
+
+function normalizeAmount(value) {
+  const text = String(value).trim();
+  if (text === "") return "0";
+  // Remove commas only when they form complete groups of three digits.
+  if (/^[+]?\d{1,3}(,\d{3})+(\.\d*)?$/.test(text)) return text.replaceAll(",", "");
+  return text;
 }
 
 function isPositiveNumber(number) {
