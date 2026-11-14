@@ -1,32 +1,87 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
-
-@theme {
-  --color-primary: #5764c6;
-  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-}
-
-/* Keep Tailwind v3 defaults that v4 changed */
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-
-  button:not(:disabled),
-  [role="button"]:not(:disabled) {
-    cursor: pointer;
-  }
-}
-
-body {
-  background-color: #fafafa;
-}
-
-[v-cloak] {
-  display: none;
+@theme { --color-primary: #174e43; --font-sans: Inter, "Segoe UI", sans-serif; }
+:root { font-family: Inter, "Segoe UI", sans-serif; color: #243a34; background: #f6f5f0; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+a { color: inherit; text-underline-offset: 4px; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 3px solid #b77622; outline-offset: 4px; }
+.app-shell { max-width: 1160px; margin: auto; padding: 0 40px; }
+.site-header { display: flex; justify-content: space-between; align-items: center; padding: 26px 0; border-bottom: 1px solid #dce0d6; }
+.brand { display: flex; gap: 12px; align-items: center; font-size: 18px; font-weight: 700; text-decoration: none; letter-spacing: -.5px; }
+.brand-mark { display: grid; place-items: center; background: #174e43; color: #fff; border-radius: 12px; width: 38px; height: 38px; font-size: 25px; }
+.country { font-size: 13px; color: #53655e; }
+.intro { padding: 56px 0 34px; }
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.7px; margin: 0 0 12px; }
+.intro .eyebrow { color: #65786b; }
+h1 { font-size: clamp(36px, 5vw, 54px); line-height: 1.1; letter-spacing: -2px; font-weight: 650; margin: 0 0 18px; }
+.intro-copy { color: #53655e; font-size: 18px; line-height: 1.6; margin: 0 0 22px; }
+.rate-link { font-size: 12px; display: inline-block; color: #35614d; }
+.rate-link span { margin-left: 8px; }
+.calculator-layout { display: grid; grid-template-columns: 1fr 1.12fr; gap: 24px; align-items: start; }
+.input-card, .results-card, .error-card { border-radius: 22px; overflow: hidden; background: white; border: 1px solid #dfe5dc; box-shadow: 0 10px 36px #243a3406; }
+.input-card { padding: 30px; }
+.card-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 26px; }
+.card-heading .eyebrow { color: #748072; margin-bottom: 6px; }
+h2 { margin: 0; font-size: 21px; font-weight: 650; letter-spacing: -.5px; }
+.text-button { font-size: 13px; color: #476350; border: 0; background: transparent; padding: 10px 0 10px 10px; text-decoration: underline; text-underline-offset: 4px; }
+.form-field { margin-bottom: 24px; }
+.form-field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 9px; }
+.amount-input { display: flex; align-items: center; gap: 12px; border: 1px solid #d1d9cd; border-radius: 10px; padding: 0 15px; background: #fcfcf9; }
+.amount-input:focus-within { border-color: #174e43; box-shadow: 0 0 0 3px #174e4315; }
+.amount-input span { color: #6b7a6e; font-size: 14px; }
+.amount-input input { width: 100%; min-width: 0; padding: 14px 0; background: transparent; border: 0; box-shadow: none; outline: none; font-size: 21px; color: #243a34; font-variant-numeric: tabular-nums; }
+.amount-input input:focus { box-shadow: none; }
+.amount-input input::placeholder { color: #929c91; }
+.field-hint { margin: 8px 0 0; font-size: 12px; color: #667467; line-height: 1.6; }
+.privacy-note { border-top: 1px solid #e6e9e0; padding-top: 18px; font-size: 12px; line-height: 1.6; color: #667467; margin: 0; }
+.take-home { background: #174e43; padding: 36px 32px; color: #fff; }
+.take-home .eyebrow { color: #c7decf; font-size: 10px; }
+.take-home h2 { font-size: clamp(30px, 3.5vw, 44px); line-height: 1.3; letter-spacing: -1.8px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.take-home h2 span { font-size: 20px; font-weight: 400; letter-spacing: 0; color: #c7decf; }
+.take-home > p:last-child { color: #c7decf; font-size: 12px; margin: 14px 0 0; }
+.deductions { padding: 28px 32px; }
+.deductions h3 { font-size: 14px; font-weight: 600; margin: 0 0 20px; }
+dl { margin: 0; }
+dl > div { display: flex; gap: 16px; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #e6e9e0; font-size: 14px; }
+dt { color: #647267; }
+dt span { display: block; font-size: 11px; margin-top: 3px; }
+dd { margin: 0; font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; overflow-wrap: anywhere; }
+.breakdown-button { display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 18px 0 0; background: transparent; border: 0; color: #174e43; font-size: 13px; font-weight: 600; text-align: left; }
+.breakdown-button span { font-size: 20px; line-height: 1; }
+.table-scroll { overflow-x: auto; margin-top: 24px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+caption { text-align: left; color: #667467; padding: 0 0 12px; }
+th, td { text-align: right; padding: 12px 5px; border-bottom: 1px solid #e6e9e0; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead { color: #667467; }
+tfoot { font-weight: 700; }
+.error-card { padding: 32px; border-color: #c7876d; }
+.error-card p { color: #8d3f29; font-size: 14px; line-height: 1.6; margin-top: 15px; }
+.guidance { margin: 46px 0; }
+.guidance h2 { font-size: 18px; margin-bottom: 24px; }
+.guidance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.guidance h3 { font-size: 13px; font-weight: 650; margin: 0 0 8px; }
+.guidance p { font-size: 12px; line-height: 1.8; color: #667467; margin: 0; }
+.site-footer { border-top: 1px solid #dce0d6; display: flex; justify-content: space-between; gap: 24px; padding: 26px 0 32px; font-size: 12px; }
+.site-footer strong { font-size: 14px; }
+.site-footer p { color: #667467; margin: 8px 0; line-height: 1.7; }
+.site-footer small { font-size: 10px; color: #667467; }
+.site-footer nav { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
+@media (max-width: 720px) {
+  .app-shell { padding: 0 20px; }
+  .site-header { padding: 18px 0; }
+  .brand { font-size: 16px; }
+  .intro { padding: 36px 0 28px; }
+  .intro-copy { font-size: 16px; }
+  .calculator-layout, .guidance-grid { grid-template-columns: 1fr; }
+  .input-card, .deductions { padding: 24px; }
+  .take-home { padding: 30px 24px; }
+  .take-home h2 { font-size: 38px; }
+  .guidance-grid { gap: 20px; }
+  .site-footer { flex-direction: column; }
 }
