@@ -1,4 +1,7 @@
 export const SSNIT_RATE = 5.5
+// SSNIT maximum insurable earnings, effective 1 January 2026.
+// https://www.ssnit.org.gh/wp-content/uploads/2026/01/Public-Notice-Min-Max-Insurable.pdf
+export const SSNIT_MAX_INSURABLE_EARNINGS = 69000
 
 
 

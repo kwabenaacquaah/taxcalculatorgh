@@ -80,7 +80,7 @@ describe("full calculation", () => {
       incomeTax: "0.00",
       ssnit: "27.50",
       netIncome: "472.50",
-      computationBreakdown: [{ taxRate: 0, taxAmount: "0.00", amountTaxed: "473" }]
+      computationBreakdown: [{ taxRate: 0, taxAmount: "0.00", amountTaxed: "472.50" }]
     });
   });
 
@@ -94,21 +94,21 @@ describe("full calculation", () => {
       ssnit: "275.00",
       netIncome: "4739.25",
       computationBreakdown: [
-        { taxRate: 0, taxAmount: "0.00", amountTaxed: "588" },
-        { taxRate: 5, taxAmount: "4.00", amountTaxed: "80" },
-        { taxRate: 10, taxAmount: "10.00", amountTaxed: "100" },
-        { taxRate: 17.5, taxAmount: "507.50", amountTaxed: "2900" },
-        { taxRate: 25, taxAmount: "464.25", amountTaxed: "1857" }
+        { taxRate: 0, taxAmount: "0.00", amountTaxed: "588.00" },
+        { taxRate: 5, taxAmount: "4.00", amountTaxed: "80.00" },
+        { taxRate: 10, taxAmount: "10.00", amountTaxed: "100.00" },
+        { taxRate: 17.5, taxAmount: "507.50", amountTaxed: "2900.00" },
+        { taxRate: 25, taxAmount: "464.25", amountTaxed: "1857.00" }
       ]
     });
   });
 
   it("handles a top-band earner", () => {
-    // SSNIT 5,500; taxable 94,500; tax = 13,621.10 + 44,500 * 35% = 29,196.10
+    // Capped SSNIT 3,795; taxable 96,205; tax 29,792.85.
     expect(calculate("100000", "", "")).toMatchObject({
-      incomeTax: "29196.10",
-      ssnit: "5500.00",
-      netIncome: "65303.90"
+      incomeTax: "29792.85",
+      ssnit: "3795.00",
+      netIncome: "66412.15"
     });
     expect(calculate("100000", "", "").computationBreakdown).toHaveLength(7);
   });
@@ -135,10 +135,10 @@ describe("input validation", () => {
     expect(calculate(input, input, input).errorMessage).toBeUndefined();
   });
 
-  it.each(["abc", "-5", "1,000", "1e3", " 100", "100 ", "1.2.3", "GH₵100", "NaN", "Infinity"])(
+  it.each(["abc", "-5", "1,00", "1e3", "1.2.3", "GH₵100", "NaN", "Infinity"])(
     "rejects %j in any field",
     (bad) => {
-      const error = { errorMessage: "Please input valid amounts" };
+      const error = expect.objectContaining({ errorMessage: expect.any(String) });
       expect(calculate(bad, "", "")).toEqual(error);
       expect(calculate("", bad, "")).toEqual(error);
       expect(calculate("", "", bad)).toEqual(error);
@@ -180,5 +180,19 @@ describe("invariants", () => {
       const total = new Decimal(netIncome).plus(incomeTax).plus(ssnit);
       expect(total.toFixed(2), gross).toBe(new Decimal(gross).plus("123.45").toFixed(2));
     });
+  });
+});
+
+describe("formatted amounts and pension ceiling", () => {
+  it("accepts grouped amounts and surrounding whitespace", () => {
+    expect(calculate(" 5,000.00 ", " 1,000 ", " 200 ")).toEqual(calculate(5000, 1000, 200));
+  });
+  it.each([["68999", "3794.95"], ["69000", "3795.00"], ["69001", "3795.00"]])(
+    "caps the employee contribution for basic income %s", (gross, contribution) => {
+      expect(calculate(gross, "", "").ssnit).toBe(contribution);
+    }
+  );
+  it("identifies the invalid field", () => {
+    expect(calculate("1000", "1,00", "").errorMessage).toContain("Monthly allowances");
   });
 });
