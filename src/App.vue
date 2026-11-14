@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import { useHead } from "@unhead/vue";
 import ResultSection from "./components/ResultSection.vue";
 import FormInput from "./components/FormInput.vue";
+import PayslipSection from "./components/PayslipSection.vue";
 import { calculate } from "./lib/core";
 import { monthlyTaxRates } from "./lib/rates";
 import { formatLongDate } from "./lib/dates";
@@ -25,20 +26,24 @@ function reset() {
 
 <template>
   <div class="app-shell">
+    <div class="flag-stripe" aria-hidden="true"></div>
     <header class="site-header">
       <a class="brand" href="./" aria-label="PAYE Calculator home"><span class="brand-mark" aria-hidden="true">₵</span> PAYE Calculator</a>
       <span class="country">Ghana · GHS</span>
     </header>
     <main>
       <section class="intro" aria-labelledby="page-title">
-        <p class="eyebrow">YOUR MONTHLY PAY, EXPLAINED</p>
+        <p class="eyebrow">Ghana · Monthly payroll</p>
         <h1 id="page-title">PAYE Calculator</h1>
-        <p class="intro-copy">See what comes home.<br />Understand your tax and pension deductions in seconds.</p>
+        <p class="intro-copy">Calculate your monthly income tax, pension deductions and take-home pay.</p>
         <a class="rate-link" href="https://gra.gov.gh/domestic-tax/tax-types/paye/" target="_blank" rel="noopener noreferrer">GRA rates effective {{ ratesEffectiveFrom }} <span aria-hidden="true">↗</span></a>
       </section>
+      <nav class="section-nav" aria-label="Calculator sections"><a href="#calculator" class="active-link">PAYE calculator</a><a href="#payslip">Payslip generator</a><a href="#guidance-title">How it works</a><a href="https://gra.gov.gh/domestic-tax/tax-types/paye/" target="_blank" rel="noopener noreferrer">GRA tax guidance ↗</a></nav>
+      <section class="workspace" id="calculator">
+      <div class="workspace-heading"><div><h2>From salary to take-home pay</h2><p>Enter your earnings to see your monthly estimate.</p></div><span class="pay-period">Pay frequency · Monthly</span></div>
       <div class="calculator-layout">
         <section class="input-card" aria-labelledby="input-title">
-          <div class="card-heading"><div><p class="eyebrow">START HERE</p><h2 id="input-title">Your monthly income</h2></div><button class="text-button" type="button" @click="reset">Reset</button></div>
+          <div class="card-heading"><div><h2 id="input-title">Salary &amp; allowances</h2></div><button class="text-button" type="button" @click="reset">Reset</button></div>
           <form @submit.prevent>
             <FormInput id="gross-income" label="Basic salary" hint="Your monthly salary before deductions." v-model="grossIncome" />
             <FormInput id="allowances" label="Taxable allowances" hint="Add your monthly taxable allowances, if any." v-model="allowances" />
@@ -51,6 +56,8 @@ function reset() {
           <ResultSection v-else :tax-result="taxResult" />
         </div>
       </div>
+      </section>
+      <PayslipSection :tax-result="taxResult" :basic-income="grossIncome" :allowances="allowances" :tax-relief="taxRelief" />
       <section class="guidance" aria-labelledby="guidance-title">
         <h2 id="guidance-title">A little clarity before payday</h2>
         <div class="guidance-grid">
